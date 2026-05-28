@@ -9,6 +9,7 @@ from typing import Any
 import numpy as np
 
 from go2_pg_env.track import StandardOvalTrack
+from track_bonus.official_track import official_track
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -213,7 +214,7 @@ def build_track_model(
 
     import mujoco
 
-    track = track or StandardOvalTrack()
+    track = track or official_track()
     asset_root = resolve_go2_asset_model_dir(asset_model_dir)
     parent = mujoco.MjSpec.from_string(_parent_track_xml(track, marker_count=int(marker_count)))
     for dog_idx in range(num_dogs):

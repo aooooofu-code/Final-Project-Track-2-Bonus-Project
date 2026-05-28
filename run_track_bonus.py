@@ -3,7 +3,7 @@
 
 This benchmark is hierarchical:
 
-    high-level planner: track coordinates -> [vx, vy, yaw_rate]
+    high-level planner: official 5D track observation -> [vx, vy, yaw_rate]
     low-level policy:  proprioception + command -> 12 joint actions
 
 The starter planner is intentionally weak. It exists to make the interface
@@ -33,7 +33,13 @@ from course_common import (
 )
 from go2_pg_env.track import StandardOvalTrack
 from test_policy import load_policy_with_workaround
-from track_bonus.controller_interface import LOWLEVEL_ACTION_SIZE, LOWLEVEL_STATE_OBS_SIZE, validate_high_level_command
+from track_bonus.controller_interface import (
+    LOWLEVEL_ACTION_SIZE,
+    LOWLEVEL_STATE_OBS_SIZE,
+    build_track_controller_observation,
+    validate_high_level_command,
+)
+from track_bonus.official_track import config_dict, official_track, official_track_config, validate_official_track_fields
 from track_bonus.planner import StarterTrackPlanner
 from track_bonus.scoring import compute_track_bonus_metrics, score_track_bonus
 
@@ -65,6 +71,10 @@ def parse_args() -> argparse.Namespace:
 def _save_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _validate_planner_track(planner: Any, track: StandardOvalTrack) -> None:
+    validate_official_track_fields(config_dict(getattr(planner, "config", None)), track)
 
 
 def _validate_checkpoint(checkpoint_dir: Path) -> None:
@@ -148,6 +158,7 @@ def rollout(
     env: Any,
     policy: Any,
     planner: StarterTrackPlanner,
+    track: StandardOvalTrack,
     num_steps: int,
     seed: int,
     start_s: float,
@@ -156,11 +167,12 @@ def rollout(
     jax = stack["jax"]
     rng = jax.random.PRNGKey(int(seed))
     rng, reset_key = jax.random.split(rng)
-    state = _reset_lowlevel_on_track(stack=stack, env=env, rng=reset_key, track=planner.track, start_s=start_s)
+    state = _reset_lowlevel_on_track(stack=stack, env=env, rng=reset_key, track=track, start_s=start_s)
     step_fn = env.step if force_cpu else jax.jit(env.step)
 
     qpos = []
     commands = []
+    track_observations = []
     done = []
     fall = []
     joint_torques = []
@@ -174,7 +186,8 @@ def rollout(
             snap = frozen_snapshot
         else:
             qpos_now = np.asarray(state.data.qpos, dtype=np.float32)
-            command = validate_high_level_command(planner.command(qpos_now, t=step_idx * env.dt))
+            track_obs = build_track_controller_observation(qpos=qpos_now, track=track)
+            command = validate_high_level_command(planner.command(track_obs, t=step_idx * env.dt))
             state = _force_command(state, command, jax)
             rng, act_key = jax.random.split(rng)
             action, _ = policy(state.obs, act_key)
@@ -185,6 +198,7 @@ def rollout(
             snap = {
                 "qpos": np.asarray(state.data.qpos, dtype=np.float32),
                 "command": command,
+                "track_observation": track_obs.as_array(),
                 "done": bool(np.asarray(state.done)),
                 "fall": bool(np.asarray(state.done)),
                 "joint_torques": np.asarray(state.data.actuator_force, dtype=np.float32),
@@ -192,7 +206,7 @@ def rollout(
                 "foot_slip_speed": np.linalg.norm(feet_vel[:, :2], axis=-1).astype(np.float32),
             }
 
-            projection = planner.track.project_xy_to_track(snap["qpos"][:2])
+            projection = track.project_xy_to_track(snap["qpos"][:2])
             terminal = snap["done"] or projection.out_of_bounds
             if terminal:
                 frozen = True
@@ -200,6 +214,7 @@ def rollout(
 
         qpos.append(snap["qpos"])
         commands.append(snap["command"])
+        track_observations.append(snap["track_observation"])
         done.append(snap["done"])
         fall.append(snap["fall"])
         joint_torques.append(snap["joint_torques"])
@@ -210,6 +225,7 @@ def rollout(
         "dt": float(env.dt),
         "qpos": np.asarray(qpos, dtype=np.float32),
         "command": np.asarray(commands, dtype=np.float32),
+        "track_observation": np.asarray(track_observations, dtype=np.float32),
         "done": np.asarray(done, dtype=bool),
         "fall": np.asarray(fall, dtype=bool),
         "joint_torques": np.asarray(joint_torques, dtype=np.float32),
@@ -232,7 +248,11 @@ def main() -> None:
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    track = official_track()
+    planner_config_payload = load_json(args.planner_config.resolve())
+    validate_official_track_fields(planner_config_payload, track)
     planner = StarterTrackPlanner.load(args.planner_config.resolve())
+    _validate_planner_track(planner, track)
     stack = lazy_import_stack()
     env = _make_env(stack, course_cfg, args.stage_name, episode_steps=num_steps)
     policy = load_policy_with_workaround(args.checkpoint_dir.resolve(), deterministic=True)
@@ -244,12 +264,13 @@ def main() -> None:
         env=env,
         policy=policy,
         planner=planner,
+        track=track,
         num_steps=num_steps,
         seed=int(args.seed),
         start_s=float(args.start_s_m),
         force_cpu=force_cpu,
     )
-    metrics = compute_track_bonus_metrics(result, planner.track)
+    metrics = compute_track_bonus_metrics(result, track)
     scores = score_track_bonus(metrics)
 
     np.savez_compressed(
@@ -258,6 +279,7 @@ def main() -> None:
         qpos=result["qpos"][None, ...],
         dt=np.asarray([result["dt"]], dtype=np.float32),
         command=result["command"],
+        track_observation=result["track_observation"],
     )
     (output_dir / "leaderboard.csv").write_text(
         "rank,name,composite_score,lap_completion,valid_distance_m,finish_time,mean_progress_speed,fall,boundary_violation,rms_lateral_error,max_lateral_error\n"
@@ -279,7 +301,7 @@ def main() -> None:
             width=int(args.render_width),
             height=int(args.render_height),
             camera_profile=str(args.render_camera_profile),
-            track_config=planner.config.to_dict(),
+            track_config=official_track_config(),
         )
 
     payload = {
@@ -287,6 +309,7 @@ def main() -> None:
         "entry_name": str(args.entry_name),
         "checkpoint_dir": str(args.checkpoint_dir.resolve()),
         "planner_config": str(args.planner_config.resolve()),
+        "official_track": official_track_config(),
         "metrics": metrics,
         "scores": scores,
         "artifacts": {

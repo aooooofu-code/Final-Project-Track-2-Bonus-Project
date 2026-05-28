@@ -4,6 +4,9 @@ The official high-level output is always:
 
     [vx_mps, vy_mps, yaw_rate_radps]
 
+The evaluator passes a `TrackControllerObservation` to the planner, not raw
+MuJoCo state.
+
 The command is consumed by the HW1-style low-level Go2 policy.  This module
 keeps the command contract explicit so student planners remain compatible with
 single-policy evaluation.

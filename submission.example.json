@@ -4,7 +4,8 @@
   "checkpoint_dir": "best_checkpoint",
   "planner_config": "planner_config.json",
   "planner_code": "track_bonus/planner.py",
+  "high_level_planner_type": "learned",
   "training_steps": 15000000,
   "evaluation_command": "python run_track_bonus.py --checkpoint-dir best_checkpoint --planner-config planner_config.json --output-dir track_eval",
-  "notes": "Briefly describe your low-level training, high-level planner, and failed ideas."
+  "notes": "Briefly describe your low-level training, learned high-level planner, and failed ideas."
 }

@@ -19,11 +19,17 @@ compatible with the HW1 Brax PPO format.
 This repo evaluates one submission at a time; ranking compares submitted
 outputs.
 
+Leaderboard submissions must train a learned high-level planner for this fixed
+interface. The provided starter planner is only a weak baseline for debugging.
+Keep the 5D input and 3D output fixed; change the planner internals. The
+official scene is fixed: 200 m centerline, 18.25 m turn radius, and 2.0 m half
+width. Do not change the track geometry to improve score.
+
 ## Allowed
 
 - Reuse a HW1 checkpoint.
 - Retrain or modify the low-level Go2 policy.
-- Replace or train the high-level controller.
+- Train a learned high-level controller for the fixed track interface.
 
 ## Not Allowed
 
@@ -31,6 +37,8 @@ outputs.
 - Delete or rename required output fields.
 - Bypass the low-level policy with prewritten joint trajectories.
 - Use privileged actor observations beyond normal `state`.
+- Change the official track geometry.
+- Submit only the hand-written starter planner as the final method.
 
 ## Ranking
 
@@ -59,8 +67,8 @@ optional track_eval/race.mp4
 short_report.pdf
 ```
 
-Report briefly: low-level changes, high-level design, training/search method,
-final metrics, and one failed idea.
+Report briefly: low-level changes, learned high-level planner design, training
+method, final metrics, and one failed idea.
 
 ## Grading
 

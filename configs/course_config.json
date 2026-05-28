@@ -210,7 +210,7 @@
     "report_required_questions": [
       "Explain the observation, action, and reward design.",
       "Describe your low-level command tracking changes.",
-      "Describe your high-level track planner and what track features it uses.",
+      "Describe your learned high-level planner and training method.",
       "Report lap completion, finish time if completed, lateral error, fall, energy, and slip metrics.",
       "Explain why your changes may or may not help sim-to-real transfer.",
       "Describe at least one failed idea and what you learned from it."

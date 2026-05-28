@@ -22,6 +22,11 @@ Read `docs/assignment_requirements.md`.
 
 Interface: `docs/controller_interface.md`
 
+Leaderboard submissions must train a learned high-level planner. Keep the 5D
+input and 3D output fixed; change the planner internals. The starter planner is
+only an interface example. The official track geometry is fixed by the
+evaluator.
+
 ## Colab
 
 Open `notebooks/track_bonus_colab_template.ipynb`.
@@ -52,7 +57,7 @@ results for ranking.
 ## Explore
 
 - Improve low-level turning and command tracking in `go2_pg_env/joystick.py`.
-- Improve or replace the high-level planner in `track_bonus/planner.py`.
+- Train a learned high-level planner inside `track_bonus/planner.py`.
 - Use `results.json`, `leaderboard.csv`, and `race.mp4` to understand failures.
 
 More: `docs/high_level_optimization_guide.md`

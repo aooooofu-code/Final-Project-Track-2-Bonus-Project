@@ -1,1 +1,1 @@
-"""Starter high-level planner package."""
+"""High-level planner package for the Track 2 bonus."""

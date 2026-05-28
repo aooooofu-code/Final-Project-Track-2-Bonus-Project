@@ -20,6 +20,10 @@ contract.
 ```
 
 Defined in `track_bonus/controller_interface.py`.
+These features are computed from the official 200 m oval used by the evaluator.
+The planner may use the features, but should not redefine the track geometry.
+Leaderboard submissions should train a learned policy that consumes exactly
+this observation vector.
 
 ## Output
 
@@ -31,8 +35,10 @@ Shape must be `(3,)`. Values must be finite. The evaluator does not clip or
 rescale commands.
 
 The default evaluator loads `StarterTrackPlanner.load(planner_config)` and then
-calls `planner.command(qpos, t)`. If you replace the controller implementation,
-keep that entry point or include the modified evaluator code.
+calls `planner.command(track_observation, t)`. If you replace the controller
+implementation, keep that entry point.
+The evaluator validates the official track fields in the planner config and
+uses its own fixed track for reset, scoring, and rendering.
 
 ## Checkpoint
 

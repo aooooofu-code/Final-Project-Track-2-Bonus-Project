@@ -1,9 +1,8 @@
 """Starter high-level planner for the 200 m track bonus.
 
-The evaluator passes `qpos` to this wrapper so the starter can construct track
-features internally. The student-facing controller contract is the compact 5D
-track observation defined in `track_bonus/controller_interface.py`, mapped to
-the local joystick command consumed by the HW1 Go2 locomotion policy:
+The evaluator builds the official compact 5D track observation defined in
+`track_bonus/controller_interface.py`. The high-level planner maps it to the
+local joystick command consumed by the HW1 Go2 locomotion policy:
 
     5D track observation -> [vx, vy, yaw_rate]
 
@@ -22,7 +21,8 @@ from typing import Any
 import numpy as np
 
 from go2_pg_env.track import StandardOvalTrack, wrap_angle
-from track_bonus.controller_interface import TrackControllerObservation, build_track_controller_observation
+from track_bonus.controller_interface import TrackControllerObservation
+from track_bonus.official_track import official_track
 
 
 @dataclass(frozen=True)
@@ -36,9 +36,6 @@ class StarterPlannerConfig:
     k_lateral: float = 0.08
     heading_slowdown: float = 0.45
     stand_seconds: float = 1.0
-    track_length_m: float = 200.0
-    turn_radius_m: float = 18.25
-    half_width_m: float = 2.0
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "StarterPlannerConfig":
@@ -61,9 +58,6 @@ class StarterPlannerConfig:
             "k_lateral": self.k_lateral,
             "heading_slowdown": self.heading_slowdown,
             "stand_seconds": self.stand_seconds,
-            "track_length_m": self.track_length_m,
-            "turn_radius_m": self.turn_radius_m,
-            "half_width_m": self.half_width_m,
         }
 
 
@@ -79,21 +73,15 @@ class StarterTrackPlanner:
         if config.planner_type != "starter_pd":
             raise ValueError(f"Unsupported planner_type: {config.planner_type!r}")
         self.config = config
-        self.track = StandardOvalTrack(
-            length_m=float(config.track_length_m),
-            turn_radius_m=float(config.turn_radius_m),
-            half_width_m=float(config.half_width_m),
-        )
+        self.track: StandardOvalTrack = official_track()
 
     @classmethod
     def load(cls, path: Path) -> "StarterTrackPlanner":
         return cls(StarterPlannerConfig.load(path))
 
-    def command(self, qpos: np.ndarray, t: float) -> np.ndarray:
+    def command(self, obs: TrackControllerObservation, t: float) -> np.ndarray:
         if t < self.config.stand_seconds:
             return np.zeros(3, dtype=np.float32)
-
-        obs = build_track_controller_observation(qpos=qpos, track=self.track)
         return self.command_from_observation(obs)
 
     def command_from_observation(self, obs: TrackControllerObservation) -> np.ndarray:

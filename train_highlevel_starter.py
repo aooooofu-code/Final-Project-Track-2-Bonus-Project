@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Tiny black-box search scaffold for the track bonus high-level planner.
 
-This is intentionally simple and intentionally not a solved planner. It tunes a
-small JSON controller by repeatedly running `run_track_bonus.py --no-render`.
-Students can replace this with a learned MLP, RL controller, or any other
-method that outputs `[vx, vy, yaw_rate]` for the low-level locomotion policy.
+This is intentionally simple and intentionally not a solved planner. It searches
+over a small JSON controller by repeatedly running `run_track_bonus.py --no-render`.
+Use it to debug the evaluation loop. For a leaderboard submission, replace the
+planner internals with a learned policy that maps the official 5D observation
+to `[vx, vy, yaw_rate]`.
 """
 
 from __future__ import annotations

@@ -1,6 +1,8 @@
-# High-Level Optimization Guide
+# High-Level Planner Training
 
-The starter high-level planner is weak on purpose.
+Leaderboard submissions must train a learned high-level planner. Keep the
+5D input and 3D output fixed; replace the internals with your learned policy.
+The starter planner is weak on purpose and only shows the interface.
 
 ## Starter Search Command
 
@@ -12,17 +14,17 @@ python train_highlevel_starter.py \
   --population 12
 ```
 
-This is black-box search over starter planner parameters. It optimizes
-`scores.composite_score` from `run_track_bonus.py`.
+This is a minimal black-box search over starter planner parameters. It is useful
+for debugging the loop, but it is not a final learned planner by itself.
 
 ## Possible Directions
 
-- Tune `speed_mps`, `k_heading`, `k_lateral`, and command scaling inside the
-  starter planner.
-- Replace `track_bonus/planner.py` with an MLP or RL controller while keeping
-  the same load/command entry point.
+- Replace the internals of `track_bonus/planner.py` with an MLP, RL policy, or
+  another trained policy while keeping the same load/command entry point.
 - Train the low-level policy to track nonzero `vy` and `yaw_rate`.
 - Use staged evaluation: straight, turn entry, turn middle, turn exit, full lap.
+- Keep the official track geometry fixed. The evaluator rejects mismatched
+  track fields.
 
 ## Useful Metrics
 

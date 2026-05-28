@@ -2,54 +2,33 @@
 
 Goal: run Go2 as far as possible around a 200 m oval track in MuJoCo.
 
-## Routes
+## Options
 
 - Proposal-based final project.
 - Go2 oval-track tournament.
 - Both, for bonus.
 
-## Tournament Controller
+## Tournament
 
 ```text
 5D track observation -> [vx, vy, yaw_rate] -> Go2 low-level policy
 ```
 
-Use the interface in `docs/controller_interface.md`. The low-level checkpoint
-should stay compatible with the HW1 Brax PPO format.
+Use `docs/controller_interface.md`. The low-level checkpoint should stay
+compatible with the HW1 Brax PPO format.
 
 ## Allowed
 
 - Reuse a HW1 checkpoint.
 - Retrain or modify the low-level Go2 policy.
 - Replace or train the high-level controller.
-- Add your own configs, scripts, planner modules, or report artifacts.
 
 ## Not Allowed
 
 - Hard-code benchmark results.
 - Delete or rename required output fields.
 - Bypass the low-level policy with prewritten joint trajectories.
-- Use privileged low-level actor observations beyond normal `state`.
-
-## Commands
-
-Train:
-
-```bash
-python train.py \
-  --config configs/course_config.json \
-  --stage both \
-  --output-dir artifacts/low_level_train
-```
-
-Evaluate:
-
-```bash
-python run_track_bonus.py \
-  --checkpoint-dir artifacts/low_level_train/best_checkpoint \
-  --planner-config configs/starter_planner.json \
-  --output-dir artifacts/track_eval
-```
+- Use privileged actor observations beyond normal `state`.
 
 ## Ranking
 
@@ -78,7 +57,7 @@ short_report.pdf
 ```
 
 Report briefly: low-level changes, high-level design, training/search method,
-final metrics, one failed idea, and real-robot localization assumptions.
+final metrics, and one failed idea.
 
 ## Grading
 

@@ -12,7 +12,7 @@ solution checkpoint, successful planner, teacher rollouts, or solution videos.
 - Go2 oval-track tournament.
 - Both, for bonus.
 
-Read `docs/track2_assignment_handout.md` and `docs/assignment_requirements.md`.
+Read `docs/assignment_requirements.md`.
 
 ## Controller
 

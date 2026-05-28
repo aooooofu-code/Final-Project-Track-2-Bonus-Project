@@ -1,16 +1,13 @@
 # Controller Interface
 
-## Architecture
+High-level controllers must use this interface so different submissions can be
+evaluated together.
 
 ```text
-high-level:
-  5D track observation -> [vx, vy, yaw_rate]
-
-low-level:
-  proprioception + command -> 12 Go2 joint actions
+5D track observation -> [vx, vy, yaw_rate] -> Go2 low-level policy
 ```
 
-## High-Level Input
+## Input
 
 ```text
 [
@@ -24,7 +21,7 @@ low-level:
 
 Defined in `track_bonus/controller_interface.py`.
 
-## High-Level Output
+## Output
 
 ```text
 [vx_mps, vy_mps, yaw_rate_radps]
@@ -33,7 +30,7 @@ Defined in `track_bonus/controller_interface.py`.
 Shape must be `(3,)`. Values must be finite. The evaluator does not clip or
 rescale commands.
 
-## Low-Level Checkpoint
+## Checkpoint
 
 Use the HW1 Brax PPO format:
 
@@ -42,7 +39,7 @@ Use the HW1 Brax PPO format:
 - no `privileged_state` actor
 - 12-dimensional action
 
-## Tournament Rendering
+## Multi-Dog Render
 
 Scoring runs each entry independently. Visualization combines saved rollouts:
 

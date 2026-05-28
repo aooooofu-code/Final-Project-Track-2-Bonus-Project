@@ -36,6 +36,12 @@ You are given:
 The starter planner is intentionally conservative and is not expected to solve
 the full project by itself.
 
+For the high-level optimization details, read:
+
+```text
+docs/high_level_optimization_guide.md
+```
+
 ## 3. Required Student Work
 
 You must improve at least one of the following:
@@ -147,6 +153,9 @@ python train_highlevel_starter.py \
   --iterations 8 \
   --population 12
 ```
+
+This script optimizes `scores.composite_score` from `run_track_bonus.py`. It is
+black-box search, not analytic gradient descent through MuJoCo.
 
 ## 7. Evaluation Metrics
 

@@ -50,6 +50,12 @@ Read the full assignment requirements before changing code:
 docs/assignment_requirements.md
 ```
 
+For how the high-level planner can be optimized, read:
+
+```text
+docs/high_level_optimization_guide.md
+```
+
 ## Low-Level Training
 
 The low-level policy uses the same Brax PPO checkpoint format as HW1:
@@ -109,6 +115,9 @@ This is a scaffold, not the expected final method. You may replace it with an
 MLP, RL controller, residual controller, or another learned high-level policy,
 as long as the runtime outputs `[vx, vy, yaw_rate]`.
 
+The starter search uses `scores.composite_score` from `run_track_bonus.py` as
+its reward signal. It does not backpropagate through MuJoCo.
+
 ## Track Metrics
 
 The benchmark reports:
@@ -133,6 +142,7 @@ track_bonus/planner.py
 run_track_bonus.py
 train_highlevel_starter.py
 docs/assignment_requirements.md
+docs/high_level_optimization_guide.md
 ```
 
 ## Submission

@@ -1,0 +1,11 @@
+{
+  "team_name": "AoFu",
+  "track2_option": "leaderboard",
+  "checkpoint_dir": "best_checkpoint",
+  "planner_config": "planner_config.json",
+  "planner_code": "track_bonus/planner.py",
+  "planner_weights": "",
+  "high_level_planner_type": "hand_tuned_race_assist",
+  "track_eval": "track_eval/results.json",
+  "notes": "Used an Assignment 1-compatible Go2 low-level checkpoint and a hand-tuned race-assist high-level planner. The planner maps the official 5D track observation to [vx, vy, yaw_rate], with curvature-aware speed, dynamic rescue gains, command smoothing, and tuned high-speed tracking. Best full no-render eval completed 200 m in 150.10 s without fall or boundary violation."
+}

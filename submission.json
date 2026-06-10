@@ -1,11 +1,11 @@
 {
   "team_name": "AoFu",
   "track2_option": "leaderboard",
-  "checkpoint_dir": "best_checkpoint",
-  "planner_config": "planner_config.json",
+  "checkpoint_dir": "low_level_checkpoint",
+  "planner_config": "configs/starter_planner.json",
   "planner_code": "track_bonus/planner.py",
   "planner_weights": "",
   "high_level_planner_type": "hand_tuned_race_assist",
   "track_eval": "track_eval/results.json",
-  "notes": "Used an Assignment 1-compatible Go2 low-level checkpoint and a hand-tuned race-assist high-level planner. The planner maps the official 5D track observation to [vx, vy, yaw_rate], with curvature-aware speed, dynamic rescue gains, command smoothing, and tuned high-speed tracking. Best full no-render eval completed 200 m in 150.10 s without fall or boundary violation."
+  "notes": "Submission contents: 1) Low-level Go2 locomotion checkpoint is in low_level_checkpoint/. 2) High-level planner code is track_bonus/planner.py. 3) High-level planner config is configs/starter_planner.json. 4) No separate high-level learned weights/checkpoint are used; the high-level planner is hand-tuned. 5) Evaluation result should be in artifacts/track_eval/results.json when reproduced locally. Best observed full no-render eval completed 200 m in about 150.10 s with no fall and no boundary violation. To reproduce, run run_track_bonus.py with --checkpoint-dir low_level_checkpoint --planner-config configs/starter_planner.json --config configs/colab_runtime_config.json."
 }
